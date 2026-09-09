@@ -22,10 +22,14 @@ O objetivo é transformar a relação reativa entre seguradoras e clientes em um
 ---
 
 ## 📌 Visão Geral e Contexto
+
 No setor securitário tradicional, a imensa maioria das interações entre a seguradora e o segurado ocorre de maneira **reativa** — ou seja, apenas após a ocorrência e aviso do sinistro.
 O **Weather Insurance AI** transforma esse paradigma através de uma **abordagem preditiva e preventiva**. O sistema monitora continuamente variáveis meteorológicas em tempo real e previsões futuras, correlaciona anomalias climáticas com as apólices dos segurados (Residencial, Automotivo, Agro, Familiar) e gera comunicações personalizadas e empáticas antes que o dano se concretize.
+
 ---
+
 ## 🎯 Objetivos do Projeto
+
 - **Monitoramento Meteorológico:** Integração com a API pública do **OpenWeatherMap** (clima atual e previsão estendida).
 - **Detecção de Eventos Críticos:** Identificação automatizada de chuvas torrenciais, tempestades severas, vendavais, granizo e variações térmicas anômalas.
 - **Motor de Regras de Negócio:** Cruzamento geográfico e paramétrico entre eventos climáticos e tipos de cobertura contratadas.
@@ -36,6 +40,7 @@ O **Weather Insurance AI** transforma esse paradigma através de uma **abordagem
 ---
 
 ## 🔄 Fluxo de Execução do Sistema (5 Etapas)
+
 ```mermaid
  flowchart TD
   A["1. Coleta de Dados<br/>(OpenWeatherMap API)"] --> B["2. Identificação de Risco<br/>(Limiares Meteorológicos)"]
