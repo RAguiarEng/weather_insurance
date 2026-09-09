@@ -1,0 +1,50 @@
+# Ambiente virtual
+.venv/
+venv/
+env/
+
+# Variáveis de ambiente e segredos
+.env
+.env.*
+!.env.example
+
+# Cache e arquivos temporários
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+tmp/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Builds e distribuição
+build/
+dist/
+*.egg-info/
+
+# Bancos e arquivos locais
+*.db
+*.sqlite
+*.sqlite3
+faiss_index/
+test_specialist.py
+test_supervisor.py
+arquitetura_info.md
+test_architecture_dry_run.py
+test_full_workflow.py
+test_retriever.py
+
+# Logs
+*.log
+
+# Sistema operacional
+.DS_Store
+Thumbs.db
+
+# IDEs
+.vscode/
+.idea/
+.codegraphy/*
+.system_generated/

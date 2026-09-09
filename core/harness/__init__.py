@@ -1,0 +1,1 @@
+"""Pacote do Harness: camadas de controle e verificação do agente."""

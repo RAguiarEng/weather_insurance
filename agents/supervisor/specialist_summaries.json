@@ -1,0 +1,24 @@
+[
+    {
+        "agent": "FGV",
+        "description": "Este especialista contém informações sobre a agenda de política pública sobre seguros aplicado às mudanças climáticas. As informações integram um conjunto de policy papers que discute a agenda de política pública para seguros e resseguros relacionada a infraestrutura, micro e pequenas empresas, seguro rural, saúde e novas tecnologias.",
+        "trigger_examples": [
+            "Modelos internacionais e a criação de um benchmark",
+            "Lacunas do modelo brasileiro",
+            "Recomendações de política",
+            "Pontos para pesquisa futura"
+        ]
+    },
+    {
+        "agent": "Arruda",
+        "description": "Este especialista contém informações sobre a interseção entre o seguro e as catástrofes climáticas, abordando sua complexidade e relevância no contexto nacional.",
+        "trigger_examples": [
+            "Mudanças climáticas",
+            "Mudanças climáticas e seus reflexos no Brasil",
+            "Direito dos desastres",
+            "Direito dos seguros no Brasil",
+            "Seguros como forma de redução dos impactos dos desastres e adaptação às mudanças climáticas",
+            "Abordagens para tornar o seguro mais eficiente e modelos internacionais no Brasil"
+        ]
+    }
+]
