@@ -19,6 +19,16 @@ O objetivo é transformar a relação reativa entre seguradoras e clientes em um
 
 <p align="center"><strong>Weather Insurance</strong> — Prevenção climática via agentes, APIs e IA generativa.</p>
 
+**Equipe:**
+
+| Nome	| E-mail |
+| --- | --- |
+| Bruno Corrêa	| correabruno321@gmail.com |
+| [Jhiovana Silva Ribeiro](https://github.com/jhsribeiro)	| jhiovanasilva11@gmail.com |
+| Luis R G Pereira	| luisrgpereira@gmail.com |
+| [Rodrigo Medeiros Costa](https://github.com/rodrigomdc)	| eng.rodrigomdc@gmail.com |
+| [Rodrigo Souza Aguiar](https://github.com/RAguiarEng)	| rodrigo_souza_aguiar@hotmail.com |
+
 ---
 
 ## 📌 Visão Geral e Contexto
