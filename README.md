@@ -7,7 +7,7 @@
 ![Groq](https://img.shields.io/badge/Groq-LPU%20Inference-F05032?style=flat)
 ![Google Gemini](https://img.shields.io/badge/Google%20Gemini-AI%20Model-8E75B2?style=flat&logo=googlecloud&logoColor=white)
 ![OpenRouter](https://img.shields.io/badge/OpenRouter-LLM%20Gateway-000000?style=flat)
-[![OpenWeatherMap](https://img.shields.io/badge/OpenWeatherMap-API-0078A8?style=flat&logo=openweathermap)]
+![OpenWeatherMap](https://img.shields.io/badge/OpenWeatherMap-API-0078A8?style=flat&logo=openweathermap)
 
 <h1 align="center">Sistema RAG Multiagente Hierárquico com LangGraph, FAISS e Harness de Governança</h1>
 
