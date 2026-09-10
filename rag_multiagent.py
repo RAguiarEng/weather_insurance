@@ -138,6 +138,7 @@ def consult_specialist_node(state: AgentState) -> Dict[str, Any]:
         "specialist_confidence": result["confidence"]
     }
 
+
 # --- Nó 5: Geração de Mensagem Personalizada com LLM ---
 def generate_notification_node(state: AgentState) -> Dict[str, Any]:
     llm = LLMManager.get_llm(role="main")
@@ -151,19 +152,19 @@ def generate_notification_node(state: AgentState) -> Dict[str, Any]:
     
     prompt = ChatPromptTemplate.from_messages([
         ("system", """Você é o Assistente Virtual Proativo de Seguros.
-Gere uma mensagem de notificação preventiva (estilo WhatsApp / SMS / Push) para o segurado.
-A mensagem deve ser:
-1. Empática, clara, direta e altamente profissional.
-2. Alertar sobre a condição climática prevista na região dele.
-3. Fornecer de 2 a 3 orientações preventivas imediatas com base no tipo de seguro.
-4. Concluir com o canal de assistência 24h da seguradora."""),
-        ("human", """Dados para Personalização:
-- Nome do Cliente: {client_name}
+Gere uma mensagem curta, empática e preventiva (estilo WhatsApp / SMS) para o segurado.
+Diretrizes:
+- Máximo 3 a 4 frases ou tópicos diretos.
+- Informe a condição climática prevista na cidade dele.
+- Liste 2 a 3 ações preventivas práticas imediatas.
+- Conclua com o canal de assistência 24h."""),
+        ("human", """Dados:
+- Cliente: {client_name}
 - Tipo de Seguro: {insurance_type}
 - Cidade: {city}
 - Condição Climática: {condition} ({temp}°C, Vento: {wind} km/h, Chuva: {rain} mm/h)
-- Nível de Risco: {risk_level}
-- Recomendações Práticas: {actions}""")
+- Risco: {risk_level}
+- Ações Recomendadas: {actions}""")
     ])
     
     chain = prompt | llm | StrOutputParser()
@@ -183,6 +184,7 @@ A mensagem deve ser:
         "notification_generated": message,
         "notification_channel": "WhatsApp / Push"
     }
+
 
 # --- Nó 6: Simulação de Disparo ---
 def dispatch_simulation_node(state: AgentState) -> Dict[str, Any]:

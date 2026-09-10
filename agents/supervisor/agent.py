@@ -52,26 +52,26 @@ class SupervisorAgent:
                 parts.append(f"- Temas de Acionamento: {', '.join(item['trigger_examples'])}")
         return "\n".join(parts)
 
+
     def _build_router_prompt(self) -> ChatPromptTemplate:
-        system_template = """Você é o Supervisor de Inteligência em Riscos Climáticos e Seguros.
-Sua função é analisar a situação de risco meteorológico ou a consulta sobre apólices e decidir qual especialista técnico consultar:
-{specialist_summaries}
+        system_template = """Você é o Classificador de Roteamento de Seguros e Riscos Climáticos.
+Sua única tarefa é escolher o especialista mais adequado ('FGV' ou 'Arruda') com base no evento informado.
 
-Especialistas disponíveis: {specialist_names}
+Especialistas:
+- FGV: Foco em gestão de riscos climáticos, regulação e adaptação preventiva.
+- Arruda: Foco em catástrofes, sinistros severos e cobertura jurídica de seguros.
 
-Responda em formato JSON compatível com o schema:
+Retorne EXCLUSIVAMENTE um objeto JSON válido (sem textos extras ou markdown antes/depois):
 {{
-  "selected_agent": "Nome do especialista ('FGV' ou 'Arruda') ou 'none'",
-  "confidence": 0.0 a 1.0,
-  "reasoning": "Breve justificativa técnica da escolha"
+  "selected_agent": "FGV ou Arruda",
+  "confidence": 0.9,
+  "reasoning": "Justificativa em 1 frase curta."
 }}"""
         return ChatPromptTemplate.from_messages([
             ("system", system_template),
-            ("human", "Situação de Risco / Consulta: {query}")
-        ]).partial(
-            specialist_summaries=self.full_context_str,
-            specialist_names=", ".join(self.specialist_names)
-        )
+            ("human", "Evento / Consulta: {query}")
+        ])
+
 
     def _build_general_eval_prompt(self) -> ChatPromptTemplate:
         system_template = """Você é o Supervisor de Inteligência de Sinistros e Clima.

@@ -25,21 +25,22 @@ class SpecialistAgent:
         logger.success(f"Agente Especialista '{self.name}' pronto.")
 
     def _build_prompt(self, retrieved_context: str) -> ChatPromptTemplate:
-        system_message = f"""Você é o especialista técnico em regulação e impacto de riscos climáticos em seguros: {self.name}.
-Utilize o contexto documental recuperado abaixo para embasar sua resposta e formular recomendações técnicas de prevenção e adaptação a desastres climáticos.
+        system_message = f"""Você é o consultor técnico de seguros '{self.name}'.
+Seu papel é extrair do contexto documental apenas diretrizes preventivas práticas e imediatas para proteção patrimonial e mitigação de perdas do segurado.
 
-Contexto Recuperado:
+Contexto Documental:
 {retrieved_context}
 
-Diretrizes:
-1. Responda com clareza, objetividade e rigor técnico.
-2. Foque em medidas de mitigação de danos, adaptação e princípios securitários.
-3. Se o contexto não contiver informações suficientes, mencione claramente as boas práticas gerais de proteção patrimonial."""
+Regras Obrigatórias de Resposta:
+1. Seja extremamente CONCISO e DIRETO ao ponto (máximo 3 a 4 tópicos curtos).
+2. Não faça introduções longas, históricos ou teses teóricas.
+3. Foque apenas em ações práticas aplicáveis à segurança do bem segurado."""
 
         return ChatPromptTemplate.from_messages([
             ("system", system_message),
-            ("human", "{query}")
+            ("human", "Evento Climático / Risco: {query}")
         ])
+
 
     def query(self, query_text: str) -> Dict[str, Any]:
         """Recupera documentos via RAG e gera a análise do especialista."""
