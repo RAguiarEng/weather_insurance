@@ -211,7 +211,8 @@ MOCK_CLIENTS = {
         "lat": -26.4858, "lon": -49.0669,
         "policy_type": "Agro",
         "policy_id": "AGRO-23571",
-        "phone": "+55 48 9888-1234"
+        "phone": "+55 48 9888-1234",
+        "email": "raguiar.eng@gmail.com"
     },
 }
 
@@ -245,8 +246,6 @@ st.sidebar.markdown("### 📋 Dados Cadastrais")
 st.sidebar.info(
     f"• **Apólice:** `{client_data['policy_id']}`\n\n"
     f"• **Titular:** {client_data['client_name']}\n\n"
-    f"• **Município:** {client_data['city']}\n\n"
-    f"• **Contato:** {client_data['phone']}\n\n"
     f"• **Cobertura Selecionada:** `{insurance_type}`"
 )
 

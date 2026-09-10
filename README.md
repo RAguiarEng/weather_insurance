@@ -156,7 +156,7 @@ Crie o arquivo `.env` a partir do `.env.example`.
 
 ```bash
 # 1. Clone o repositório
-git clone <url-do-repositorio>
+git clone https://github.com/RAguiarEng/weather_insurance.git
 cd RAG
 
 # 2. Crie e ative o ambiente virtual
