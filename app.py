@@ -287,9 +287,16 @@ MOCK_CLIENTS = {
         "lat": -26.4858, "lon": -49.0669,
         "policy_type": "Agro",
         "policy_id": "AGRO-23571",
-        "phone": "+55 48 9888-1234",
-        "email": "raguiar.eng@gmail.com"
+        "phone": "+55 48 9888-1234"
     },
+    "Carlos Daniel (Palma - ESP)": {
+        "client_name": "Carlos Daniel",
+        "city": "Palma",
+        "lat": 39.571314, "lon": 2.651651,
+        "policy_type": "Residencial",
+        "policy_id": "RES-78990",
+        "phone": "+34 971 8888-7777"
+    }
 }
 
 # --- Sidebar: Seleção do Segurado ---
