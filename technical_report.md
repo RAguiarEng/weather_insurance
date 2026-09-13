@@ -41,11 +41,13 @@ A arquitetura é composta por:
 O sistema emprega uma estrutura de agentes com um **Agente Supervisor** que roteia as tarefas para **Agentes Especialistas** conforme a necessidade.
 
 ### Agente Supervisor
+
 *   **Função:** Atua como o orquestrador central do fluxo de trabalho. Ele recebe o estado inicial do sistema (dados do segurado, coordenadas, tipo de apólice) e coordena a execução das etapas.
 *   **Roteamento:** Decide qual Agente Especialista (ou qual etapa do pipeline) deve ser acionado em cada momento, com base na lógica de negócio e na necessidade de consulta.
 *   **Governança:** Aplica as camadas de governança para garantir que as decisões e as informações fluam de maneira controlada e confiável.
 
 ### Agentes Especialistas (FGV, Arruda)
+
 *   **Função:** Cada especialista é responsável por um domínio específico de conhecimento, acessando sua própria base documental via RAG.
 *   **Bases de Conhecimento:**
     *   **FGV:** Especializado em políticas públicas, modelos internacionais de benchmark, regulação e micro/pequenas empresas no contexto de seguros e mudanças climáticas.
@@ -78,9 +80,7 @@ A solução utiliza uma stack tecnológica moderna e robusta, focada em IA gener
 Demonstração do rastreamento registrado no LangSmith, na seguinte configuração:
 
 - Segurado: Rodrigo Aguiar
-
 - Tipo de apólice: Agro
-
 - Fonte de dados: App Real (OpenWeatherMap)
 
 ![LangSmith_tracing](img/LangSmith_tracing.png)
@@ -117,6 +117,7 @@ As mensagens são dinamicamente geradas pelos LLMs, adaptando-se ao contexto do 
 ### Cenário 1: Tempo nublado com vento, sem risco (Apólice Automotiva)
 
 Olá, Bruno! 🌥️ Hoje em Porto Alegre está nublado, 16 °C, vento de 13 km/h e sem chuva.
+
 - Verifique a pressão dos pneus e o nível de combustível antes de sair.
 - Mantenha os faróis acesos e o para-brisa limpo para melhor visibilidade.
 - Tenha o kit de emergência (triângulo, lanterna e cabo) à mão.
@@ -128,7 +129,6 @@ Em caso de necessidade, nossa assistência 24h está disponível pelo telefone 0
 Olá, Bruno! 🌧️ Hoje em Porto Alegre há rajadas de vento intensas (72 km/h) e chuva forte (36,5 mm/h).
 
 - Estacione o carro em local coberto e elevado.
-
 - Evite vias com histórico de alagamento e não tente atravessar áreas inundadas.
 
 Em caso de emergência, nossa Assistência 24 h está disponível pelo 0800 555 1234. 🚗💨
@@ -138,9 +138,7 @@ Em caso de emergência, nossa Assistência 24 h está disponível pelo 0800 
 Olá Rodrigo, alerta de tempestade com granizo e chuva torrencial em Jaraguá do Sul (18,5 °C, vento 68,4 km/h, 42 mm/h).
 
 - Guarde os maquinários em galpões fechados.
-
 - Verifique sistemas de drenagem e contenção de encostas.
-
 - Leve os animais para abrigos protegidos.
 
 Assistência 24 h: 0800‑123‑4567.
@@ -150,9 +148,7 @@ Assistência 24 h: 0800‑123‑4567.
 Olá Rodrigo, tudo bem? Em Belém o céu está limpo, temperatura estável de 24 °C e vento de 12 km/h.
 
 - Verifique portas e janelas, garantindo que estejam bem fechadas.
-
 - Teste os detectores de fumaça e mantenha o extintor em dia.
-
 - Tenha um kit básico de emergência (lanterna, pilhas, primeiros socorros) à mão.
 
 Qualquer necessidade, nossa assistência 24 h está disponível pelo WhatsApp 0800‑123‑456.

@@ -1,10 +1,17 @@
 import json
 from datetime import datetime
+
 import streamlit as st
 import folium
 from streamlit_folium import st_folium
-from rag_multiagent import app as langgraph_app
+import httpx
+from weather_api_clients.openweather_client import OpenWeatherMapClient
+
 from config import RULES_ENGINE_CONFIG, OPENWEATHERMAP_API_KEY
+from rag_multiagent import app as langgraph_app
+
+owm_client = OpenWeatherMapClient()
+weather_client_app = OpenWeatherMapClient()
 
 # --- Funções Auxiliares para Simulação de Risco (Determinística) ---
 # Estas funções simulam a lógica de detecção de risco do pipeline,
@@ -22,7 +29,7 @@ def _get_risk_score(risk_level: str) -> int:
         return 1
     return 0
 
-def _detect_simulated_risk(weather_data: dict) -> dict:
+def _detect_simulated_risk(weather_data: dict, weather_client_instance: OpenWeatherMapClient) -> dict:
     """Simula a detecção de risco com base em dados meteorológicos."""
     risk_level = "Baixo"
     events = ["Condições Estáveis"]
@@ -423,8 +430,6 @@ def execute_workflow():
 
     result = langgraph_app.invoke(initial_state)
 
-    result["preventive_actions"] = [...]
-
     return result
 
 # --- Lógica de Avaliação de Risco Inicial (ao carregar a página) ---
@@ -434,22 +439,23 @@ if st.session_state.initial_risk_assessment is None:
     highest_risk_event = None
     highest_risk_weather = None
 
-    # Importa o cliente OpenWeatherMap para a simulação inicial
-    import httpx
-    from weather_api_clients.openweather_client import OpenWeatherMapClient
-    owm_client = OpenWeatherMapClient()
 
     for client_key, client_info in MOCK_CLIENTS.items():
         try:
             # Simula a coleta de dados meteorológicos para cada cliente
-            weather_data_for_client = owm_client.get_current_weather(
+            success, raw_current_weather = weather_client_app.get_current_weather( # Use weather_client_app
                 lat=client_info["lat"],
-                lon=client_info["lon"],
-                lang="pt_br",
-                units="metric"
+                lon=client_info["lon"]
             )
-            # Simula a detecção de risco
-            simulated_event = _detect_simulated_risk(weather_data_for_client)
+
+            # Normaliza os dados brutos, assim como é feito no rag_multiagent.py
+            # E adiciona a cidade para consistência
+            normalized_weather_data = weather_client_app.normalize_current_weather(raw_current_weather) if success else {} # Use weather_client_app
+            normalized_weather_data["city"] = client_info["city"] # Adiciona a cidade para _detect_simulated_risk
+
+            # Simula a detecção de risco usando os dados normalizados
+            simulated_event = _detect_simulated_risk(normalized_weather_data, weather_client_app)
+
             simulated_risk_level = simulated_event["severity"]
 
             current_score = _get_risk_score(simulated_risk_level)
@@ -458,7 +464,7 @@ if st.session_state.initial_risk_assessment is None:
                 highest_risk_score = current_score
                 highest_risk_client = client_info
                 highest_risk_event = simulated_event
-                highest_risk_weather = weather_data_for_client
+                highest_risk_weather = normalized_weather_data
         except Exception as e:
             # Em caso de erro na API (ex: chave inválida), ignora o cliente para a avaliação inicial
             # e loga o erro, mas não impede o carregamento da página.
