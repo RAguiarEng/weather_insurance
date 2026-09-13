@@ -8,6 +8,7 @@
 ![Google Gemini](https://img.shields.io/badge/Google%20Gemini-AI%20Model-8E75B2?style=flat&logo=googlecloud&logoColor=white)
 ![OpenRouter](https://img.shields.io/badge/OpenRouter-LLM%20Gateway-000000?style=flat)
 ![OpenWeatherMap](https://img.shields.io/badge/OpenWeatherMap-API-0078A8?style=flat&logo=openweathermap)
+![Folium](https://img.shields.io/badge/Folium-Leaflet_Maps-77B829?style=flat)
 
 <h1 align="center">Sistema RAG Multiagente Hierárquico com LangGraph, FAISS e Harness de Governança</h1>
 
@@ -48,6 +49,20 @@ O **Weather Insurance AI** transforma esse paradigma através de uma **abordagem
 - **Simulação de Disparo:** Rastreamento do ciclo completo de envio multicanal (WhatsApp, SMS, Push, E-mail).
 
 ---
+
+## ✅ Requisitos Mínimos Atendidos (Desafio)
+
+Este projeto foi arquitetado para cumprir e exceder todos os requisitos propostos para a solução:
+
+- [x] **Consumir dados de API pública meteorológica:** Integração robusta com a API da **OpenWeatherMap** (dados em tempo real e Tile API para mapas de calor/precipitação).
+- [x] **Identificar automaticamente eventos climáticos relevantes:** Motor de regras determinístico (`RULES_ENGINE_CONFIG`) que avalia limiares de chuva, vento e temperatura.
+- [x] **Aplicar regras de decisão para notificações:** Varredura inicial de toda a base de segurados para priorizar o cliente em maior risco, cruzando a severidade do clima com o tipo de apólice.
+- [x] **Gerar mensagens personalizadas com IA:** Uso de LLMs orquestrados pelo LangGraph para redigir alertas humanizados, empáticos e acionáveis, baseados no contexto exato do sinistro evitado.
+- [x] **Simular o envio das notificações:** Interface apresenta um mockup visual de smartphone (WhatsApp/Push) e gera um log de telemetria estruturado da entrega.
+- [x] **Demonstrar o fluxo completo da solução:** Dashboard interativo em Streamlit que exibe desde a telemetria inicial e mapas de risco até o detalhamento técnico das 5 etapas do pipeline de IA.
+
+---
+
 
 ## 🔄 Fluxo de Execução do Sistema (5 Etapas)
 
@@ -181,13 +196,15 @@ cp .env.example .env
 
 ## 📊 Demonstração na Interface (Streamlit)
 
-A aplicação gráfica permite:
+A aplicação gráfica foi desenhada para demonstrações executivas e permite:
 
-1. **Seleção de Perfil de Segurado:** Simulação com múltiplos perfis pré-configurados (`MOCK_CLIENTS`) em diversas regiões do Brasil (Porto Alegre, Goiânia, São Paulo, Belém, Jaraguá do Sul).
-2. **Painel Climático em Tempo Real:** Visualização de temperatura, velocidade do vento, volume de chuva e condição do tempo.
-3. **Diagnóstico de Risco e Regras:** Exibição da severidade calculada e regras de apólice ativadas.
-4. **Mensagem Preventiva Personalizada:** Leitura da mensagem gerada pela IA generativa pronta para envio ao segurado.
-5. **Log de Telemetria e Disparo:** Rastreabilidade do status de envio simulado.
+1. **Alerta Proativo Global:** Ao carregar, o sistema faz uma varredura determinística em toda a base de clientes e destaca imediatamente o segurado com maior risco climático iminente.
+2. **Seleção de Perfil de Segurado:** Simulação com múltiplos perfis pré-configurados (`MOCK_CLIENTS`) em diversas regiões do Brasil.
+3. **Geolocalização e Mapas Climáticos:** Integração com **Leaflet/Folium** exibindo a localização do risco e permitindo alternar camadas meteorológicas reais (Radar de Chuva, Nuvens, Temperatura e Vento) da OpenWeatherMap.
+4. **Painel Climático em Tempo Real:** Visualização de temperatura, velocidade do vento, volume de chuva e condição do tempo.
+5. **Diagnóstico de Risco e Regras:** Exibição da severidade calculada e regras de apólice ativadas.
+6. **Mensagem Preventiva Personalizada:** Leitura da mensagem gerada pela IA generativa pronta para envio ao segurado (Mockup de Smartphone).
+7. **Log de Telemetria e Disparo:** Rastreabilidade do status de envio simulado.
 
 ---
 
