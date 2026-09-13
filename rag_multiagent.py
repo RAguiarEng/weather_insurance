@@ -26,21 +26,31 @@ specialist_agents = {name: SpecialistAgent(name=name) for name in SPECIALIST_DOC
 
 # --- Nó 1: Coleta de Dados Meteorológicos ---
 def fetch_weather_node(state: AgentState) -> Dict[str, Any]:
+    # Verifica se os dados meteorológicos já foram fornecidos (simulados)
+    if state.get("weather_data") and state.get("weather_event") and state.get("risk_level"):
+        logger.info("[Nó 1] Dados meteorológicos pré-existentes no estado (simulados). Pulando coleta.")
+        return {
+            "weather_data": state["weather_data"],
+            "weather_forecast": state.get("weather_forecast", {}), # Pode não ter previsão em simulação
+            "weather_event": state["weather_event"],
+            "risk_level": state["risk_level"]
+        }
+
+    # Se não houver dados pré-existentes, procede com a coleta normal da API
     coords = state.get("coordinates") or {"lat": -23.5505, "lon": -46.6333} # Default: São Paulo
     city = state.get("city_name") or "São Paulo"
-    
+
     logger.info(f"[Nó 1] Coletando clima para {city} ({coords['lat']}, {coords['lon']})...")
     success, raw_current = weather_client.get_current_weather(coords["lat"], coords["lon"])
     _, raw_forecast = weather_client.get_forecast(coords["lat"], coords["lon"])
-    
+
     normalized = weather_client.normalize_current_weather(raw_current) if success else {}
     normalized["city"] = city
-    
+
     return {
         "weather_data": normalized,
         "weather_forecast": raw_forecast or {}
     }
-
 # --- Nó 2: Identificação de Eventos Climáticos de Risco ---
 def detect_risks_node(state: AgentState) -> Dict[str, Any]:
     weather = state.get("weather_data", {})

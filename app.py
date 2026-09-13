@@ -356,10 +356,9 @@ def execute_workflow():
         "messages": []
     }
 
-    result = langgraph_app.invoke(initial_state)
-
+    # --- Lógica para INJETAR dados simulados no initial_state ---
     if weather_mode == "Simular: Tempestade Severa com Granizo":
-        result["weather_data"] = {
+        initial_state["weather_data"] = {
             "city": client_data["city"],
             "temp": 18.5,
             "feels_like": 17.0,
@@ -369,15 +368,19 @@ def execute_workflow():
             "condition_main": "Thunderstorm",
             "condition_description": "Tempestade com granizo e chuva torrencial"
         }
-        result["risk_level"] = "Crítico"
-        result["weather_event"] = {
+        initial_state["risk_level"] = "Crítico"
+        initial_state["weather_event"] = {
             "has_risk": True,
             "events": ["Chuva Torrencial / Tempestade Severa", "Vendaval / Rajadas Destrutivas", "Condição Severa: Granizo"],
             "severity": "Crítico",
             "timestamp": datetime.now().isoformat()
         }
+        # Podemos pré-definir algumas regras e ações para simulação, se quisermos
+        initial_state["triggered_rules"] = ["Regra AUTO-02: Risco de alagamento de vias, queda de galhos e granizo."]
+        initial_state["preventive_actions"] = ["Estacionar o veículo em local coberto e elevado.", "Evitar transitar por vias com histórico de alagamento."]
+
     elif weather_mode == "Simular: Vendaval e Chuva Torrencial":
-        result["weather_data"] = {
+        initial_state["weather_data"] = {
             "city": client_data["city"],
             "temp": 21.0,
             "feels_like": 20.0,
@@ -387,15 +390,18 @@ def execute_workflow():
             "condition_main": "Squall",
             "condition_description": "Rajadas de vento intensas e chuva forte"
         }
-        result["risk_level"] = "Crítico"
-        result["weather_event"] = {
+        initial_state["risk_level"] = "Crítico"
+        initial_state["weather_event"] = {
             "has_risk": True,
             "events": ["Chuva Torrencial / Tempestade Severa", "Vendaval / Rajadas Destrutivas"],
             "severity": "Crítico",
             "timestamp": datetime.now().isoformat()
         }
+        initial_state["triggered_rules"] = ["Regra RES-01: Risco de destelhamento, infiltração e queima de aparelhos elétricos."]
+        initial_state["preventive_actions"] = ["Desconectar aparelhos eletrônicos sensíveis das tomadas.", "Verificar fechamento de janelas e desobstrução de calhas."]
+
     elif weather_mode == "Simular: Condição Estável (Sem Risco)":
-        result["weather_data"] = {
+        initial_state["weather_data"] = {
             "city": client_data["city"],
             "temp": 24.0,
             "feels_like": 24.0,
@@ -405,15 +411,19 @@ def execute_workflow():
             "condition_main": "Clear",
             "condition_description": "Céu limpo e tempo estável"
         }
-        result["risk_level"] = "Baixo"
-        result["weather_event"] = {
+        initial_state["risk_level"] = "Baixo"
+        initial_state["weather_event"] = {
             "has_risk": False,
             "events": ["Condições Estáveis"],
             "severity": "Baixo",
             "timestamp": datetime.now().isoformat()
         }
-        result["triggered_rules"] = ["Nenhuma regra emergencial ativada. Monitoramento de rotina ativo."]
-        result["preventive_actions"] = ["Manter acompanhamento periódico."]
+        initial_state["triggered_rules"] = ["Nenhuma regra emergencial ativada. Monitoramento de rotina ativo."]
+        initial_state["preventive_actions"] = ["Manter acompanhamento periódico."]
+
+    result = langgraph_app.invoke(initial_state)
+
+    result["preventive_actions"] = [...]
 
     return result
 

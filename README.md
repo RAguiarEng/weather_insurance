@@ -86,6 +86,17 @@ Este projeto foi arquitetado para cumprir e exceder todos os requisitos proposto
 
 ---
 
+### Rastreamento LangSmith
+
+Demonstração do rastreamento registrado no LangSmith, na seguinte configuração:
+- Segurado: Rodrigo Aguiar
+- Tipo de apólice: Agro
+- Fonte de dados: App Real (OpenWeatherMap)
+
+![LangSmith_parte01](img/LangSmith_parte01.png)
+
+---
+
 ## 🏗️ Arquitetura e Especialistas da Base de Conhecimento
 
 O sistema utiliza indexação vetorial com FAISS e Cohere Embeddings v3 (`embed-multilingual-v3.0`), cobrindo bases documentais em `docs/weather/`:
