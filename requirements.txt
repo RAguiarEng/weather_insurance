@@ -25,3 +25,5 @@ tenacity
 httpx
 folium
 streamlit-folium
+markdown
+weasyprint

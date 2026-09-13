@@ -35,6 +35,7 @@ arquitetura_info.md
 test_architecture_dry_run.py
 test_full_workflow.py
 test_retriever.py
+technical_report.pdf
 
 # Logs
 *.log

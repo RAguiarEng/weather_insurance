@@ -6,7 +6,9 @@ O objetivo é transformar a relação reativa entre seguradoras e clientes em um
 
 ## Entregável do Desafio 05 — InsurMinds: Inteligência Artificial aplicada a Seguros
 
-Repositório GitHub público: [https://github.com/RAguiarEng/weather_insurance](https://github.com/RAguiarEng/weather_insurance)
+Repositório GitHub público: 
+
+[https://github.com/RAguiarEng/weather_insurance](https://github.com/RAguiarEng/weather_insurance)
 
 **Equipe:**
 
@@ -74,8 +76,11 @@ A solução utiliza uma stack tecnológica moderna e robusta, focada em IA gener
 ### Rastreamento LangSmith
 
 Demonstração do rastreamento registrado no LangSmith, na seguinte configuração:
+
 - Segurado: Rodrigo Aguiar
+
 - Tipo de apólice: Agro
+
 - Fonte de dados: App Real (OpenWeatherMap)
 
 ![LangSmith_tracing](img/LangSmith_tracing.png)
@@ -121,7 +126,9 @@ Em caso de necessidade, nossa assistência 24h está disponível pelo telefone 0
 ### Cenário 2: Vendaval e Chuva Torrencial (Apólice Automotivo)
 
 Olá, Bruno! 🌧️ Hoje em Porto Alegre há rajadas de vento intensas (72 km/h) e chuva forte (36,5 mm/h).
+
 - Estacione o carro em local coberto e elevado.
+
 - Evite vias com histórico de alagamento e não tente atravessar áreas inundadas.
 
 Em caso de emergência, nossa Assistência 24 h está disponível pelo 0800 555 1234. 🚗💨
@@ -129,8 +136,11 @@ Em caso de emergência, nossa Assistência 24 h está disponível pelo 0800 
 ### Cenário 3: Tempestade severa com granizo (Apólice Agro)
 
 Olá Rodrigo, alerta de tempestade com granizo e chuva torrencial em Jaraguá do Sul (18,5 °C, vento 68,4 km/h, 42 mm/h).
+
 - Guarde os maquinários em galpões fechados.
+
 - Verifique sistemas de drenagem e contenção de encostas.
+
 - Leve os animais para abrigos protegidos.
 
 Assistência 24 h: 0800‑123‑4567.
@@ -138,8 +148,11 @@ Assistência 24 h: 0800‑123‑4567.
 ### Cenário 4: Condição Estável, Sem Risco (Apólice Familiar)
 
 Olá Rodrigo, tudo bem? Em Belém o céu está limpo, temperatura estável de 24 °C e vento de 12 km/h.
+
 - Verifique portas e janelas, garantindo que estejam bem fechadas.
+
 - Teste os detectores de fumaça e mantenha o extintor em dia.
+
 - Tenha um kit básico de emergência (lanterna, pilhas, primeiros socorros) à mão.
 
 Qualquer necessidade, nossa assistência 24 h está disponível pelo WhatsApp 0800‑123‑456.
