@@ -8,6 +8,8 @@ from datetime import datetime
 import streamlit as st
 from rag_multiagent import app as langgraph_app
 from config import RULES_ENGINE_CONFIG
+import folium
+from streamlit_folium import st_folium
 
 # --- Configurações da Página ---
 st.set_page_config(
@@ -384,15 +386,16 @@ else:
         m2.metric("Localidade", client_data["city"], f"{weather.get('temp', 0):.1f} °C · {weather.get('condition_description', '')}")
         m3.metric("Severidade Climática", risk, f"Vento: {weather.get('wind_speed_kmh', 0):.1f} km/h")
         m4.metric("Canal de Envio", result.get("notification_channel", "WhatsApp"), "Status: Entregue")
-        
+
         st.markdown("<br>", unsafe_allow_html=True)
-        
-        col_mockup, col_telemetry = st.columns([1.1, 1], gap="large")
-        
+
+        # Colunas para o mockup do celular e o mapa
+        col_mockup, col_map = st.columns([1.1, 1], gap="large") # Ajuste os pesos conforme desejar
+
         with col_mockup:
             st.subheader("📱 Simulação Visual no Dispositivo do Segurado")
             st.caption("Notificação preventiva enviada antes da ocorrência do sinistro.")
-            
+
             st.markdown(f"""
             <div class="phone-container">
                 <div class="phone-header">
@@ -407,11 +410,33 @@ else:
                 </div>
             </div>
             """, unsafe_allow_html=True)
-            
+
+        with col_map:
+            st.subheader("🗺️ Localização do Risco")
+            st.caption("Visualização geográfica da apólice do segurado.")
+
+            # Cria o mapa Leaflet centrado no cliente
+            mapa = folium.Map(location=[client_data["lat"], client_data["lon"]], zoom_start=12)
+
+            # Adiciona um marcador
+            folium.Marker(
+                [client_data["lat"], client_data["lon"]], 
+                popup=client_data["client_name"],
+                tooltip=f"{client_data['client_name']} - {insurance_type}"
+            ).add_to(mapa)
+
+            # Renderiza o mapa Leaflet dentro do Streamlit
+            # Use o argumento key para garantir que o mapa seja re-renderizado corretamente
+            st_folium(mapa, width="100%", height=400, key=f"map_{client_data['policy_id']}")
+
+        # A coluna de telemetria agora fica em uma nova linha, abaixo das colunas anteriores
+        st.markdown("<br>", unsafe_allow_html=True) # Adiciona um espaço
+        col_telemetry = st.container() # Cria um container para a telemetria na próxima linha
+
         with col_telemetry:
             st.subheader("📡 Telemetria e Log de Disparo Simulado")
             st.caption("Registro estruturado de auditoria e confirmação de entrega multicanal.")
-            
+
             st.json({
                 "event_id": f"EVT-{datetime.now().strftime('%Y%m%d%H%M%S')}",
                 "delivery_status": "DELIVERED_SIMULATED",
