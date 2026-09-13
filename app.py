@@ -381,6 +381,25 @@ else:
     # ABA 1: CENTRAL DE COMUNICAÇÃO & TELEMETRIA (PRINCIPAL / DEFAULT)
     # =========================================================================
     with tab_principal:
+        # --- Bloco de Aviso de Risco (Nova Implementação) ---
+        # A mensagem será exibida sempre, com conteúdo condicional.
+        if event.get("has_risk", False) and risk in ["Crítico", "Alto", "Médio"]:
+            eventos_detectados = event.get("events", ["condições climáticas adversas"])
+            # Formata a lista de eventos para uma string legível
+            evento_relevante_str = ", ".join(eventos_detectados)
+
+            st.warning(
+                f"**{client_data['client_name']}**, atenção! Em sua região está prevista **{evento_relevante_str}**."
+            )
+        else:
+            # Mensagem padrão quando não há risco relevante para o segurado selecionado
+            st.info(
+                f"Monitoramento contínuo: As condições climáticas para o segurado **{client_data['client_name']}** "
+                f"({client_data['city']}) estão estáveis e sem riscos relevantes no momento. "
+                f"Nenhuma ação preventiva é necessária."
+            )
+        st.markdown("<br>", unsafe_allow_html=True) # Adiciona um pequeno espaçamento após o aviso
+
         m1, m2, m3, m4 = st.columns(4)
         m1.metric("Segurado", client_data["client_name"], f"Apólice: {insurance_type}")
         m2.metric("Localidade", client_data["city"], f"{weather.get('temp', 0):.1f} °C · {weather.get('condition_description', '')}")
@@ -433,6 +452,8 @@ else:
             ).add_to(mapa)
 
             # Adiciona as camadas visuais da OpenWeatherMap
+            # Certifique-se de que OPENWEATHERMAP_API_KEY está importado de config.py
+            from config import OPENWEATHERMAP_API_KEY # Adicione esta linha no topo do app.py se ainda não o fez
             if OPENWEATHERMAP_API_KEY:
                 # Camada de Precipitação
                 folium.TileLayer(
@@ -475,7 +496,6 @@ else:
                 ).add_to(mapa)
 
                 # Adiciona o controle de camadas no canto do mapa
-                # Isso cria o menu onde o usuário pode ligar/desligar as camadas
                 folium.LayerControl().add_to(mapa)
 
             # Renderiza o mapa Leaflet dentro do Streamlit
@@ -504,7 +524,7 @@ else:
                 "dispatch_timestamp": dispatch_log.get("timestamp", datetime.now().strftime("%Y-%m-%d %H:%M:%S")),
                 "actions_suggested_count": len(result.get("preventive_actions", []))
             })
-
+            
     # =========================================================================
     # ABA 2: FLUXO DETALHADO DAS ETAPAS SEQUENCIAIS
     # =========================================================================
