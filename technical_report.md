@@ -6,7 +6,7 @@ O objetivo é transformar a relação reativa entre seguradoras e clientes em um
 
 ## Entregável do Desafio 05 — InsurMinds: Inteligência Artificial aplicada a Seguros
 
-
+Repositório GitHub público: [https://github.com/RAguiarEng/weather_insurance](https://github.com/RAguiarEng/weather_insurance)
 
 **Equipe:**
 
