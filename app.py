@@ -1,15 +1,89 @@
-"""Interface Streamlit - Sistema de Prevenção Climática para Seguradoras (Layout em Abas)
-Autor: Rodrigo Aguiar (https://raguiar.eng.br)
-Data: 09/09/2026
-"""
-
 import json
 from datetime import datetime
 import streamlit as st
-from rag_multiagent import app as langgraph_app
-from config import RULES_ENGINE_CONFIG, OPENWEATHERMAP_API_KEY
 import folium
 from streamlit_folium import st_folium
+from rag_multiagent import app as langgraph_app
+from config import RULES_ENGINE_CONFIG, OPENWEATHERMAP_API_KEY
+
+# --- Funções Auxiliares para Simulação de Risco (Determinística) ---
+# Estas funções simulam a lógica de detecção de risco do pipeline,
+# mas de forma leve para a carga inicial do Streamlit.
+
+def _get_risk_score(risk_level: str) -> int:
+    """Atribui um score numérico a cada nível de risco."""
+    if risk_level == "Crítico":
+        return 4
+    elif risk_level == "Alto":
+        return 3
+    elif risk_level == "Médio":
+        return 2
+    elif risk_level == "Baixo":
+        return 1
+    return 0
+
+def _detect_simulated_risk(weather_data: dict) -> dict:
+    """Simula a detecção de risco com base em dados meteorológicos."""
+    risk_level = "Baixo"
+    events = ["Condições Estáveis"]
+    has_risk = False
+
+    # Lógica simplificada baseada em RULES_ENGINE_CONFIG
+    rain_mm = weather_data.get("rain_1h_mm", 0)
+    wind_speed = weather_data.get("wind_speed_kmh", 0)
+    temp = weather_data.get("temp", 0)
+    condition_main = weather_data.get("condition_main", "")
+
+    if rain_mm >= RULES_ENGINE_CONFIG["rain_mm_threshold"]["severe"]:
+        risk_level = "Crítico"
+        events.append("Chuva Torrencial / Tempestade Severa")
+        has_risk = True
+    elif rain_mm >= RULES_ENGINE_CONFIG["rain_mm_threshold"]["moderate"]:
+        if _get_risk_score(risk_level) < _get_risk_score("Médio"):
+            risk_level = "Médio"
+        events.append("Chuva Forte")
+        has_risk = True
+
+    if wind_speed >= RULES_ENGINE_CONFIG["wind_speed_threshold"]["severe"]:
+        if _get_risk_score(risk_level) < _get_risk_score("Crítico"):
+            risk_level = "Crítico"
+        events.append("Vendaval / Rajadas Destrutivas")
+        has_risk = True
+    elif wind_speed >= RULES_ENGINE_CONFIG["wind_speed_threshold"]["moderate"]:
+        if _get_risk_score(risk_level) < _get_risk_score("Alto"):
+            risk_level = "Alto"
+        events.append("Vento Forte")
+        has_risk = True
+
+    if temp >= RULES_ENGINE_CONFIG["temp_threshold"]["heatwave"]:
+        if _get_risk_score(risk_level) < _get_risk_score("Alto"):
+            risk_level = "Alto"
+        events.append("Onda de Calor Extrema")
+        has_risk = True
+    elif temp <= RULES_ENGINE_CONFIG["temp_threshold"]["frost"]:
+        if _get_risk_score(risk_level) < _get_risk_score("Alto"):
+            risk_level = "Alto"
+        events.append("Risco de Geada")
+        has_risk = True
+
+    if condition_main in RULES_ENGINE_CONFIG["critical_weather_conditions"]:
+        if _get_risk_score(risk_level) < _get_risk_score("Crítico"):
+            risk_level = "Crítico"
+        events.append(f"Condição Severa: {condition_main}")
+        has_risk = True
+
+    # Remove eventos duplicados e "Condições Estáveis" se houver risco real
+    if has_risk:
+        events = list(set(e for e in events if e != "Condições Estáveis"))
+    else:
+        events = ["Condições Estáveis"]
+
+    return {
+        "has_risk": has_risk,
+        "events": events,
+        "severity": risk_level,
+        "timestamp": datetime.now().isoformat()
+    }
 
 # --- Configurações da Página ---
 st.set_page_config(
@@ -23,11 +97,11 @@ st.set_page_config(
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
-    
+
     html, body, [class*="css"] {
         font-family: 'Plus Jakarta Sans', sans-serif;
     }
-    
+
     /* Hero Banner */
     .hero-banner {
         background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
@@ -38,7 +112,7 @@ st.markdown("""
         margin-bottom: 20px;
         box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.25);
     }
-    
+
     .hero-title {
         font-family: 'Outfit', sans-serif;
         font-size: 1.95rem;
@@ -46,7 +120,7 @@ st.markdown("""
         margin: 0 0 4px 0;
         color: #ffffff;
     }
-    
+
     /* Card de Boas-vindas / Placeholder */
     .placeholder-card {
         background: #1e293b;
@@ -57,7 +131,7 @@ st.markdown("""
         color: #94a3b8;
         margin-top: 20px;
     }
-    
+
     /* Cards das Etapas Sequenciais */
     .stage-card {
         background: #1e293b;
@@ -67,7 +141,7 @@ st.markdown("""
         margin-bottom: 16px;
         box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
     }
-    
+
     .stage-header {
         display: flex;
         align-items: center;
@@ -76,7 +150,7 @@ st.markdown("""
         border-bottom: 1px solid #334155;
         padding-bottom: 10px;
     }
-    
+
     .stage-title {
         font-family: 'Outfit', sans-serif !important;
         color: #f8fafc !important;
@@ -84,7 +158,7 @@ st.markdown("""
         font-weight: 600 !important;
         margin: 0 !important;
     }
-    
+
     .stage-badge {
         background: #0284c7;
         color: #ffffff;
@@ -95,7 +169,7 @@ st.markdown("""
         text-transform: uppercase;
         letter-spacing: 0.05em;
     }
-    
+
     /* Smartphone Mockup */
     .phone-container {
         background: #090d16;
@@ -106,7 +180,7 @@ st.markdown("""
         max-width: 480px;
         margin: 0 auto;
     }
-    
+
     .phone-header {
         display: flex;
         justify-content: space-between;
@@ -117,7 +191,7 @@ st.markdown("""
         font-size: 0.78rem;
         color: #94a3b8;
     }
-    
+
     .whatsapp-bubble {
         background: #064e3b;
         color: #f0fdf4;
@@ -127,7 +201,7 @@ st.markdown("""
         line-height: 1.55;
         border: 1px solid #059669;
     }
-    
+
     .bubble-footer {
         display: flex;
         justify-content: flex-end;
@@ -137,7 +211,7 @@ st.markdown("""
         color: #6ee7b7;
         margin-top: 6px;
     }
-    
+
     /* Badges de Severidade */
     .risk-badge {
         display: inline-flex;
@@ -257,10 +331,12 @@ current_selection_key = f"{selected_client_key}_{insurance_type}_{weather_mode}"
 if "last_selection_key" not in st.session_state:
     st.session_state.last_selection_key = current_selection_key
     st.session_state.current_result = None
+    st.session_state.initial_risk_assessment = None # Novo estado para avaliação inicial
 
 # Se o usuário trocou o segurado ou qualquer opção, limpa os resultados da tela
 if st.session_state.last_selection_key != current_selection_key:
     st.session_state.current_result = None
+    st.session_state.initial_risk_assessment = None # Limpa também a avaliação inicial
     st.session_state.last_selection_key = current_selection_key
 
 # --- Função de Execução do Workflow ---
@@ -272,9 +348,9 @@ def execute_workflow():
         "insurance_policy": client_data,
         "messages": []
     }
-    
+
     result = langgraph_app.invoke(initial_state)
-    
+
     if weather_mode == "Simular: Tempestade Severa com Granizo":
         result["weather_data"] = {
             "city": client_data["city"],
@@ -331,8 +407,53 @@ def execute_workflow():
         }
         result["triggered_rules"] = ["Nenhuma regra emergencial ativada. Monitoramento de rotina ativo."]
         result["preventive_actions"] = ["Manter acompanhamento periódico."]
-        
+
     return result
+
+# --- Lógica de Avaliação de Risco Inicial (ao carregar a página) ---
+if st.session_state.initial_risk_assessment is None:
+    highest_risk_client = None
+    highest_risk_score = -1
+    highest_risk_event = None
+    highest_risk_weather = None
+
+    # Importa o cliente OpenWeatherMap para a simulação inicial
+    import httpx
+    from weather_api_clients.openweather_client import OpenWeatherMapClient
+    owm_client = OpenWeatherMapClient()
+
+    for client_key, client_info in MOCK_CLIENTS.items():
+        try:
+            # Simula a coleta de dados meteorológicos para cada cliente
+            weather_data_for_client = owm_client.get_current_weather(
+                lat=client_info["lat"],
+                lon=client_info["lon"],
+                lang="pt_br",
+                units="metric"
+            )
+            # Simula a detecção de risco
+            simulated_event = _detect_simulated_risk(weather_data_for_client)
+            simulated_risk_level = simulated_event["severity"]
+
+            current_score = _get_risk_score(simulated_risk_level)
+
+            if current_score > highest_risk_score:
+                highest_risk_score = current_score
+                highest_risk_client = client_info
+                highest_risk_event = simulated_event
+                highest_risk_weather = weather_data_for_client
+        except Exception as e:
+            # Em caso de erro na API (ex: chave inválida), ignora o cliente para a avaliação inicial
+            # e loga o erro, mas não impede o carregamento da página.
+            print(f"Erro ao buscar clima para {client_info['client_name']}: {e}")
+            continue
+
+    st.session_state.initial_risk_assessment = {
+        "client": highest_risk_client,
+        "event": highest_risk_event,
+        "weather": highest_risk_weather,
+        "risk_score": highest_risk_score
+    }
 
 # Botão na barra lateral
 if st.sidebar.button("🔄 Atualizar e Executar Pipeline", type="primary", use_container_width=True):
@@ -340,6 +461,29 @@ if st.sidebar.button("🔄 Atualizar e Executar Pipeline", type="primary", use_c
         st.session_state.current_result = execute_workflow()
 
 # --- Renderização do Conteúdo Principal ---
+# Bloco de aviso inicial para a seguradora (sempre visível ao carregar a página)
+if st.session_state.initial_risk_assessment:
+    initial_client = st.session_state.initial_risk_assessment["client"]
+    initial_event = st.session_state.initial_risk_assessment["event"]
+    initial_risk_score = st.session_state.initial_risk_assessment["risk_score"]
+
+    if initial_risk_score > _get_risk_score("Baixo"): # Se houver algum risco relevante
+        eventos_detectados = initial_event.get("events", ["condições climáticas adversas"])
+        evento_relevante_str = ", ".join(eventos_detectados)
+        st.error( # Usando st.error para maior destaque no aviso inicial
+            f"**ALERTA DE PRIORIDADE:** O segurado **{initial_client['client_name']}** "
+            f"({initial_client['city']}) apresenta a condição mais crítica no momento: "
+            f"**{evento_relevante_str}**."
+        )
+        st.markdown("<br>", unsafe_allow_html=True)
+    else:
+        st.success( # Usando st.success para mensagem de tranquilidade inicial
+            "**STATUS GERAL:** Todos os segurados estão sob monitoramento e, no momento, "
+            "não há riscos climáticos relevantes detectados para nenhum deles."
+        )
+        st.markdown("<br>", unsafe_allow_html=True)
+
+
 if st.session_state.get("current_result") is None:
     st.markdown(f"""
     <div class="placeholder-card">
@@ -381,11 +525,9 @@ else:
     # ABA 1: CENTRAL DE COMUNICAÇÃO & TELEMETRIA (PRINCIPAL / DEFAULT)
     # =========================================================================
     with tab_principal:
-        # --- Bloco de Aviso de Risco (Nova Implementação) ---
-        # A mensagem será exibida sempre, com conteúdo condicional.
+        # --- Bloco de Aviso de Risco (Após execução do pipeline para o cliente selecionado) ---
         if event.get("has_risk", False) and risk in ["Crítico", "Alto", "Médio"]:
             eventos_detectados = event.get("events", ["condições climáticas adversas"])
-            # Formata a lista de eventos para uma string legível
             evento_relevante_str = ", ".join(eventos_detectados)
 
             st.warning(
@@ -452,8 +594,6 @@ else:
             ).add_to(mapa)
 
             # Adiciona as camadas visuais da OpenWeatherMap
-            # Certifique-se de que OPENWEATHERMAP_API_KEY está importado de config.py
-            from config import OPENWEATHERMAP_API_KEY # Adicione esta linha no topo do app.py se ainda não o fez
             if OPENWEATHERMAP_API_KEY:
                 # Camada de Precipitação
                 folium.TileLayer(
@@ -524,102 +664,3 @@ else:
                 "dispatch_timestamp": dispatch_log.get("timestamp", datetime.now().strftime("%Y-%m-%d %H:%M:%S")),
                 "actions_suggested_count": len(result.get("preventive_actions", []))
             })
-            
-    # =========================================================================
-    # ABA 2: FLUXO DETALHADO DAS ETAPAS SEQUENCIAIS
-    # =========================================================================
-    with tab_etapas:
-        st.caption("Detalhamento arquitetural da execução de ponta a ponta pelo grafo LangGraph.")
-        
-        # ETAPA 1
-        st.markdown(f"""
-        <div class="stage-card">
-            <div class="stage-header">
-                <span class="stage-badge">Etapa 1</span>
-                <h3 class="stage-title">📡 Coleta de Dados Meteorológicos (OpenWeatherMap API)</h3>
-            </div>
-        """, unsafe_allow_html=True)
-        
-        e1_c1, e1_c2, e1_c3, e1_c4 = st.columns(4)
-        e1_c1.metric("Temperatura", f"{weather.get('temp', 0):.1f} °C", f"Sensação: {weather.get('feels_like', weather.get('temp', 0)):.1f} °C")
-        e1_c2.metric("Vento / Rajadas", f"{weather.get('wind_speed_kmh', 0):.1f} km/h")
-        e1_c3.metric("Volume de Chuva (1h)", f"{weather.get('rain_1h_mm', 0):.1f} mm")
-        e1_c4.metric("Condição Geral", str(weather.get("condition_description", "")).capitalize())
-        
-        with st.expander("🔍 Inspecionar Payload Normalizado da API"):
-            st.json(weather)
-        st.markdown("</div>", unsafe_allow_html=True)
-        
-        # ETAPA 2
-        st.markdown(f"""
-        <div class="stage-card">
-            <div class="stage-header">
-                <span class="stage-badge">Etapa 2</span>
-                <h3 class="stage-title">⚠️ Identificação de Eventos Climáticos Relevantes</h3>
-        </div>
-        """, unsafe_allow_html=True)
-        
-        e2_c1, e2_c2 = st.columns([1, 2])
-        with e2_c1:
-            st.markdown("**Nível de Risco Classificado:**")
-            st.markdown(f"<span class='risk-badge {risk_class}'>● {risk}</span>", unsafe_allow_html=True)
-            st.markdown("<br>**Eventos Detectados:**", unsafe_allow_html=True)
-            for ev in event.get("events", ["Condições Estáveis"]):
-                st.write(f"• **{ev}**")
-                
-        with e2_c2:
-            st.markdown("**Limiares Paramétricos de Referência (`RULES_ENGINE_CONFIG`):**")
-            st.write(f"• **Chuva:** Moderada > {RULES_ENGINE_CONFIG['rain_mm_threshold']['moderate']} mm/h | Severa > {RULES_ENGINE_CONFIG['rain_mm_threshold']['severe']} mm/h")
-            st.write(f"• **Vento:** Forte > {RULES_ENGINE_CONFIG['wind_speed_threshold']['moderate']} km/h | Vendaval > {RULES_ENGINE_CONFIG['wind_speed_threshold']['severe']} km/h")
-            st.write(f"• **Condições Críticas Monitoradas:** {', '.join(RULES_ENGINE_CONFIG['critical_weather_conditions'])}")
-        st.markdown("</div>", unsafe_allow_html=True)
-        
-        # ETAPA 3
-        st.markdown(f"""
-        <div class="stage-card">
-            <div class="stage-header">
-                <span class="stage-badge">Etapa 3</span>
-                <h3 class="stage-title">📋 Aplicação de Regras de Negócio e Apólices</h3>
-            </div>
-        """, unsafe_allow_html=True)
-        
-        e3_c1, e3_c2 = st.columns([1, 2])
-        with e3_c1:
-            st.write(f"**Apólice:** `{client_data['policy_id']}`")
-            st.write(f"**Modalidade:** `{insurance_type}`")
-            st.write(f"**Município:** {client_data['city']}")
-        with e3_c2:
-            st.write("**Regras Securitárias Ativadas:**")
-            for rule in result.get("triggered_rules", []):
-                st.info(rule)
-            st.write("**Recomendações Preventivas Aplicáveis:**")
-            for act in result.get("preventive_actions", []):
-                st.write(f"✅ {act}")
-        st.markdown("</div>", unsafe_allow_html=True)
-        
-        # ETAPA 4
-        st.markdown(f"""
-        <div class="stage-card">
-            <div class="stage-header">
-                <span class="stage-badge">Etapa 4</span>
-                <h3 class="stage-title">📚 Consulta Especializada RAG (Literatura de Desastres e Seguros)</h3>
-            </div>
-        """, unsafe_allow_html=True)
-        
-        st.write(f"**Agente Especialista Roteado:** `{specialist_name}` *(Base Documental Indexada via FAISS e Cohere Embeddings)*")
-        with st.expander(f"📖 Parecer do Especialista ({specialist_name})", expanded=True):
-            st.write(result.get("specialist_response", "Diretrizes técnicas gerais de proteção patrimonial aplicadas."))
-        st.markdown("</div>", unsafe_allow_html=True)
-        
-        # ETAPA 5
-        st.markdown(f"""
-        <div class="stage-card">
-            <div class="stage-header">
-                <span class="stage-badge">Etapa 5</span>
-                <h3 class="stage-title">💬 Geração da Comunicação Personalizada (IA Generativa)</h3>
-            </div>
-        """, unsafe_allow_html=True)
-        
-        st.markdown("**Mensagem Sintetizada pelo LLM:**")
-        st.success(notification_text)
-        st.markdown("</div>", unsafe_allow_html=True)
