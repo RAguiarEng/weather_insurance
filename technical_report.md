@@ -78,7 +78,7 @@ Demonstração do rastreamento registrado no LangSmith, na seguinte configuraç�
 - Tipo de apólice: Agro
 - Fonte de dados: App Real (OpenWeatherMap)
 
-![LangSmith_parte01](img/LangSmith_parte01.png)
+![LangSmith_tracing](img/LangSmith_tracing.png)
 
 ---
 
