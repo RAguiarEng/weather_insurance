@@ -7,7 +7,7 @@ import json
 from datetime import datetime
 import streamlit as st
 from rag_multiagent import app as langgraph_app
-from config import RULES_ENGINE_CONFIG
+from config import RULES_ENGINE_CONFIG, OPENWEATHERMAP_API_KEY
 import folium
 from streamlit_folium import st_folium
 
@@ -413,20 +413,72 @@ else:
 
         with col_map:
             st.subheader("🗺️ Localização do Risco")
-            st.caption("Visualização geográfica da apólice do segurado.")
+            st.caption("Visualização geográfica da apólice do segurado e camadas climáticas.")
 
             # Cria o mapa Leaflet centrado no cliente
             mapa = folium.Map(location=[client_data["lat"], client_data["lon"]], zoom_start=12)
 
-            # Adiciona um marcador
+            # Adiciona o marcador do cliente
             folium.Marker(
                 [client_data["lat"], client_data["lon"]], 
                 popup=client_data["client_name"],
                 tooltip=f"{client_data['client_name']} - {insurance_type}"
             ).add_to(mapa)
 
+            # Adiciona a camada base do OpenStreetMap (para ter um fundo)
+            folium.TileLayer(
+                tiles="OpenStreetMap",
+                name="Mapa Base (OpenStreetMap)",
+                control=True
+            ).add_to(mapa)
+
+            # Adiciona as camadas visuais da OpenWeatherMap
+            if OPENWEATHERMAP_API_KEY:
+                # Camada de Precipitação
+                folium.TileLayer(
+                    tiles=f"https://tile.openweathermap.org/map/precipitation_new/{{z}}/{{x}}/{{y}}.png?appid={OPENWEATHERMAP_API_KEY}",
+                    attr="Map data &copy; OpenWeatherMap",
+                    name="Radar de Precipitação",
+                    overlay=True,
+                    control=True,
+                    opacity=0.6
+                ).add_to(mapa)
+
+                # Camada de Nuvens
+                folium.TileLayer(
+                    tiles=f"https://tile.openweathermap.org/map/clouds_new/{{z}}/{{x}}/{{y}}.png?appid={OPENWEATHERMAP_API_KEY}",
+                    attr="Map data &copy; OpenWeatherMap",
+                    name="Cobertura de Nuvens",
+                    overlay=True,
+                    control=True,
+                    opacity=0.5
+                ).add_to(mapa)
+
+                # Camada de Temperatura
+                folium.TileLayer(
+                    tiles=f"https://tile.openweathermap.org/map/temp_new/{{z}}/{{x}}/{{y}}.png?appid={OPENWEATHERMAP_API_KEY}",
+                    attr="Map data &copy; OpenWeatherMap",
+                    name="Temperatura",
+                    overlay=True,
+                    control=True,
+                    opacity=0.7
+                ).add_to(mapa)
+
+                # Camada de Vento
+                folium.TileLayer(
+                    tiles=f"https://tile.openweathermap.org/map/wind_new/{{z}}/{{x}}/{{y}}.png?appid={OPENWEATHERMAP_API_KEY}",
+                    attr="Map data &copy; OpenWeatherMap",
+                    name="Velocidade do Vento",
+                    overlay=True,
+                    control=True,
+                    opacity=0.6
+                ).add_to(mapa)
+
+                # Adiciona o controle de camadas no canto do mapa
+                # Isso cria o menu onde o usuário pode ligar/desligar as camadas
+                folium.LayerControl().add_to(mapa)
+
             # Renderiza o mapa Leaflet dentro do Streamlit
-            # Use o argumento key para garantir que o mapa seja re-renderizado corretamente
             st_folium(mapa, width="100%", height=400, key=f"map_{client_data['policy_id']}")
 
         # A coluna de telemetria agora fica em uma nova linha, abaixo das colunas anteriores
